@@ -1,0 +1,163 @@
+{{- $epubFile := .Get 0 -}}
+{{- $epubDir := .Page.File.Dir -}}
+{{- $epubPath := printf "/%s%s" $epubDir $epubFile -}}
+
+<div class="epub-reader" id="epub-reader-{{ .Page.File.UniqueID }}">
+  <div class="epub-loading">加载中...</div>
+  <div class="epub-viewer" id="epub-viewer-{{ .Page.File.UniqueID }}"></div>
+  <div class="epub-controls">
+    <button class="epub-btn" id="epub-prev-{{ .Page.File.UniqueID }}">← 上一章</button>
+    <span class="epub-progress" id="epub-progress-{{ .Page.File.UniqueID }}"></span>
+    <button class="epub-btn" id="epub-next-{{ .Page.File.UniqueID }}">下一章 →</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+<script>
+(function() {
+  var container = document.getElementById("epub-reader-{{ .Page.File.UniqueID }}");
+  var viewer = document.getElementById("epub-viewer-{{ .Page.File.UniqueID }}");
+  var loading = container.querySelector(".epub-loading");
+  var progress = document.getElementById("epub-progress-{{ .Page.File.UniqueID }}");
+  var prevBtn = document.getElementById("epub-prev-{{ .Page.File.UniqueID }}");
+  var nextBtn = document.getElementById("epub-next-{{ .Page.File.UniqueID }}");
+
+  try {
+    var book = ePub("{{ $epubPath | safeJS }}");
+    var rendition = book.renderTo(viewer, {
+      width: "100%",
+      height: "80vh",
+      flow: "scrolled",
+      manager: "default"
+    });
+
+    var displayed = rendition.display();
+
+    book.ready.then(function() {
+      if (loading) loading.style.display = "none";
+    }).catch(function(err) {
+      if (loading) loading.textContent = "加载失败: " + err.message;
+    });
+
+    prevBtn.addEventListener("click", function() {
+      rendition.prev();
+    });
+
+    nextBtn.addEventListener("click", function() {
+      rendition.next();
+    });
+
+    rendition.on("relocated", function(location) {
+      if (location.atStart) {
+        prevBtn.disabled = true;
+      } else {
+        prevBtn.disabled = false;
+      }
+      if (location.atEnd) {
+        nextBtn.disabled = true;
+      } else {
+        nextBtn.disabled = false;
+      }
+      var pct = Math.floor(location.start.percentage * 100);
+      progress.textContent = pct + "%";
+    });
+
+    // Keyboard navigation
+    document.addEventListener("keydown", function(e) {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      if (e.key === "ArrowLeft") rendition.prev();
+      if (e.key === "ArrowRight") rendition.next();
+    });
+
+  } catch(err) {
+    if (loading) loading.textContent = "阅读器初始化失败: " + err.message;
+  }
+})();
+</script>
+
+<style>
+.epub-reader {
+  border: 1px solid var(--gray-300, #d1d5db);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.epub-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+  color: var(--gray-500, #6b7280);
+  z-index: 1;
+}
+
+.epub-viewer {
+  background: #fff;
+  min-height: 80vh;
+}
+
+.epub-viewer iframe {
+  max-width: 100%;
+  border: none;
+}
+
+.epub-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--gray-100, #f3f4f6);
+  border-top: 1px solid var(--gray-300, #d1d5db);
+}
+
+.epub-btn {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--gray-400, #9ca3af);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--gray-800, #1f2937);
+  transition: background 0.15s;
+}
+
+.epub-btn:hover:not(:disabled) {
+  background: var(--gray-200, #e5e7eb);
+}
+
+.epub-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.epub-progress {
+  font-size: 0.85rem;
+  color: var(--gray-600, #4b5563);
+  min-width: 3rem;
+  text-align: center;
+}
+
+/* Dark mode */
+:root[class~="dark"] .epub-viewer {
+  background: #1a1a2e;
+}
+
+:root[class~="dark"] .epub-controls {
+  background: var(--gray-800, #1f2937);
+  border-color: var(--gray-700, #374151);
+}
+
+:root[class~="dark"] .epub-btn {
+  background: var(--gray-800, #1f2937);
+  color: var(--gray-200, #e5e7eb);
+  border-color: var(--gray-600, #4b5563);
+}
+
+:root[class~="dark"] .epub-btn:hover:not(:disabled) {
+  background: var(--gray-700, #374151);
+}
+</style>
