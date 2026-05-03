@@ -40,10 +40,10 @@ enableInlineShortcodes: true
 menu:
   main:
     - name: 书架
-      pageRef: /book
+      pageRef: /books
       weight: 1
     - name: 随笔
-      pageRef: /ink
+      pageRef: /inks
       weight: 2
     - name: 关于
       pageRef: /about
