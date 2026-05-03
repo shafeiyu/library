@@ -17,9 +17,8 @@
 <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
 <script>
 (function() {
-  var container = document.getElementById("epub-reader-{{ $uid }}");
-  var viewer    = document.getElementById("epub-viewer-{{ $uid }}");
   var loading   = document.getElementById("epub-loading-{{ $uid }}");
+  var viewer    = document.getElementById("epub-viewer-{{ $uid }}");
   var progress  = document.getElementById("epub-progress-{{ $uid }}");
   var prevBtn   = document.getElementById("epub-prev-{{ $uid }}");
   var nextBtn   = document.getElementById("epub-next-{{ $uid }}");
@@ -31,36 +30,114 @@
     }
   }
 
+  // ---- Initialize epub.js ----
+  var book, rendition;
   try {
-    var book = ePub("{{ $epubPath | safeJS }}");
+    book = ePub("{{ $epubPath | safeJS }}");
   } catch(e) {
     return showError("\u521D\u59CB\u5316 EPUB \u5931\u8D25: " + e.message);
   }
 
-  var rendition = book.renderTo(viewer, {
+  rendition = book.renderTo(viewer, {
     width: "100%",
     height: "80vh",
     flow: "scrolled"
   });
 
-  // Wait for book to be fully parsed, then display
+  // ---- Load & render ----
   book.ready.then(function() {
     if (loading) loading.style.display = "none";
     return rendition.display();
   }).then(function() {
-    // Make viewer visible
-    viewer.style.minHeight = "80vh";
+    // After display, load the TOC and populate the right sidebar
+    return book.loaded.navigation;
+  }).then(function(nav) {
+    populateToc(nav);
   }).catch(function(err) {
     showError(err.message || "\u672A\u77E5\u9519\u8BEF");
   });
 
-  // Navigation
-  prevBtn.addEventListener("click", function() {
-    rendition.prev();
-  });
-  nextBtn.addEventListener("click", function() {
-    rendition.next();
-  });
+  // ---- Populate right sidebar TOC ----
+  function populateToc(nav) {
+    var tocNav = document.querySelector('.hextra-toc');
+    if (!tocNav || !nav) return;
+
+    var scrollDiv = tocNav.querySelector('.hextra-scrollbar');
+    if (!scrollDiv) return;
+
+    // Change the header text
+    var header = scrollDiv.querySelector('p');
+    if (header) header.textContent = '\u672C\u4E66\u76EE\u5F55';
+
+    // Remove existing headings <ul>
+    var existingUl = scrollDiv.querySelector(':scope > ul');
+    if (existingUl) existingUl.remove();
+
+    // Normalize TOC: nav.toc is the array, or nav itself may be the array
+    var tocItems = nav.toc || (Array.isArray(nav) ? nav : []);
+    if (!tocItems.length) {
+      // Some EPUBs put everything in a single structure
+      tocItems = nav;
+      if (typeof tocItems === 'object' && !Array.isArray(tocItems)) {
+        tocItems = tocItems.toc || [];
+      }
+    }
+    if (!tocItems || !tocItems.length) return;
+
+    var ul = buildTocTree(tocItems, 0);
+    if (!ul) return;
+
+    // Insert after the header paragraph, before the bottom section
+    if (header && header.nextSibling) {
+      scrollDiv.insertBefore(ul, header.nextSibling);
+    } else if (header) {
+      scrollDiv.appendChild(ul);
+    } else {
+      scrollDiv.insertBefore(ul, scrollDiv.firstChild);
+    }
+  }
+
+  function buildTocTree(items, level) {
+    if (!items || !items.length) return null;
+    var ul = document.createElement('ul');
+    items.forEach(function(item) {
+      var li = document.createElement('li');
+      li.className = 'epub-toc-li';
+
+      var a = document.createElement('a');
+      a.className = 'epub-toc-link epub-toc-level-' + Math.min(level, 5);
+      a.textContent = item.label || '';
+      a.href = 'javascript:void(0)';
+      if (level > 0) {
+        a.style.paddingLeft = (level * 12) + 'px';
+      }
+
+      // Store href for chapter highlighting
+      a._epubHref = item.href;
+
+      (function(href) {
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          rendition.display(href);
+        });
+      })(item.href);
+
+      li.appendChild(a);
+
+      // Recursive subitems
+      if (item.subitems && item.subitems.length) {
+        var subUl = buildTocTree(item.subitems, level + 1);
+        if (subUl) li.appendChild(subUl);
+      }
+
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  // ---- Navigation controls ----
+  prevBtn.addEventListener("click", function() { rendition.prev(); });
+  nextBtn.addEventListener("click", function() { rendition.next(); });
 
   rendition.on("relocated", function(location) {
     prevBtn.disabled = !!location.atStart;
@@ -68,9 +145,33 @@
     if (progress) {
       progress.textContent = Math.floor(location.start.percentage * 100) + "%";
     }
+
+    // Highlight current chapter in TOC
+    highlightTocChapter(location);
   });
 
-  // Keyboard navigation
+  function highlightTocChapter(location) {
+    var tocLinks = document.querySelectorAll('.epub-toc-link');
+    if (!tocLinks.length) return;
+
+    var currentHref = location.start.href || '';
+
+    tocLinks.forEach(function(link) {
+      link.classList.remove('epub-toc-active');
+      var linkHref = link._epubHref || '';
+      if (!linkHref || !currentHref) return;
+
+      // Strip hash fragments for comparison
+      var curBase = currentHref.replace(/#.*$/, '');
+      var linkBase = linkHref.replace(/#.*$/, '');
+
+      if (curBase === linkBase || curBase.endsWith('/' + linkBase)) {
+        link.classList.add('epub-toc-active');
+      }
+    });
+  }
+
+  // ---- Keyboard navigation ----
   document.addEventListener("keydown", function(e) {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "ArrowLeft")  rendition.prev();
@@ -80,6 +181,8 @@
 </script>
 
 <style>
+/* ---- epub reader styles ---- */
+
 .epub-reader {
   border: 1px solid var(--gray-300, #d1d5db);
   border-radius: 8px;
@@ -145,6 +248,36 @@
   text-align: center;
 }
 
+/* ---- epub TOC in right sidebar ---- */
+
+.epub-toc-li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  list-style: none;
+}
+
+.epub-toc-link {
+  display: inline-block;
+  border-radius: 0.125rem;
+  color: var(--gray-500, #6b7280);
+  width: 100%;
+  overflow-wrap: break-word;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  transition: color 0.15s;
+}
+
+.epub-toc-link:hover {
+  color: var(--gray-900, #111827);
+}
+
+.epub-toc-link.epub-toc-active {
+  color: var(--primary-600, #2563eb) !important;
+  font-weight: 500;
+}
+
 /* Dark mode */
 html.dark .epub-viewer,
 :root[class~="dark"] .epub-viewer {
@@ -167,5 +300,20 @@ html.dark .epub-btn,
 html.dark .epub-btn:hover:not(:disabled),
 :root[class~="dark"] .epub-btn:hover:not(:disabled) {
   background: var(--gray-700, #374151);
+}
+
+html.dark .epub-toc-link,
+:root[class~="dark"] .epub-toc-link {
+  color: var(--gray-400, #9ca3af);
+}
+
+html.dark .epub-toc-link:hover,
+:root[class~="dark"] .epub-toc-link:hover {
+  color: var(--gray-200, #e5e7eb);
+}
+
+html.dark .epub-toc-link.epub-toc-active,
+:root[class~="dark"] .epub-toc-link.epub-toc-active {
+  color: var(--primary-400, #60a5fa) !important;
 }
 </style>
