@@ -98,6 +98,11 @@ params:
   description: Sha的书架
   externalLinkDecoration: true
 
+  banner:
+    key: 'announcement'
+    message:
+      🎉 Sha的书架.
+
 
   theme:
     # light | dark | system
