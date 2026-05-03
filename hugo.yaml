@@ -60,13 +60,13 @@ menu:
 
   sidebar:
     - identifier: more
-      name: More
+      name: 更多
       params:
         type: separator
       weight: 1
     - identifier: about
-      name: "About"
-      pageRef: "/about"
+      name: 关于
+      pageRef: /about
       weight: 2
     - identifier: discussions
       name: "Github Discussions ↗"
