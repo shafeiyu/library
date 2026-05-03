@@ -1,6 +1,14 @@
 # Hugo configuration file
 title: Sha的书架
 
+capitalizeListTitles: false
+pluralizeListTitles: true
+enableRobotsTXT: true
+# Parse Git commit
+enableGitInfo: true
+enableEmoji: true
+hasCJKLanguage: true
+
 # import hextra as module
 module:
   imports:
