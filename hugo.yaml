@@ -78,8 +78,8 @@ params:
     displayTitle: true
     displayLogo: false
     logo:
-      path: /logo.svg
-      dark: /logo.svg
+      path: /logo.png
+      dark: /logo.png
       width: 20
       height: 10
       link: /
