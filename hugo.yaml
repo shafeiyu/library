@@ -29,7 +29,7 @@ menu:
     - name: 关于
       pageRef: /about
       weight: 3
-    - name: Search
+    - name: 搜索
       weight: 4
       params:
         type: search
@@ -39,130 +39,130 @@ menu:
       params:
         icon: github
 
-  sidebar:
-    - identifier: more
-      name: More
-      params:
-        type: separator
-      weight: 1
-    - identifier: about
-      name: "About"
-      pageRef: "/about"
-      weight: 2
-    - identifier: discussions
-      name: "Github Discussions ↗"
-      url: "https://github.com/Aerosand/aerosand.github.io/discussions"
-      weight: 3
+  # sidebar:
+  #   - identifier: more
+  #     name: More
+  #     params:
+  #       type: separator
+  #     weight: 1
+  #   - identifier: about
+  #     name: "About"
+  #     pageRef: "/about"
+  #     weight: 2
+  #   - identifier: discussions
+  #     name: "Github Discussions ↗"
+  #     url: "https://github.com/Aerosand/aerosand.github.io/discussions"
+  #     weight: 3
 
 params:
   navbar:
     displayTitle: true
     displayLogo: false
-    logo:
-      path: /logo.svg
-      dark: /logo.svg
-      width: 20
-      height: 10
-      link: /
-    width: wide
+  #   logo:
+  #     path: /logo.svg
+  #     dark: /logo.svg
+  #     width: 20
+  #     height: 10
+  #     link: /
+  #   width: wide
 
-  footer:
-    enable: true
-    displayCopyright: true
-    displayPoweredBy: false
-    width: normal
+  # footer:
+  #   enable: true
+  #   displayCopyright: true
+  #   displayPoweredBy: false
+  #   width: normal
 
-  editURL:
-    enable: true
-    base: "https://github.com/shafeiyu/library/edit/main/content"
+  # editURL:
+  #   enable: true
+  #   base: "https://github.com/shafeiyu/library/edit/main/content"
 
-  description: Sha的书架
-  externalLinkDecoration: true
+  # description: Sha的书架
+  # externalLinkDecoration: true
 
-  banner:
-    key: 'announcement'
-    message:
-      🎉 Sha的书架.
+  # banner:
+  #   key: 'announcement'
+  #   message:
+  #     🎉 Sha的书架.
 
-  theme:
-    # light | dark | system
-    default: system
-    displayToggle: true
+  # theme:
+  #   # light | dark | system
+  #   default: system
+  #   displayToggle: true
 
-  # Display the last modification info
-  displayUpdatedDate: true
-  dateFormat: "January 2, 2006"
-  displayUpdatedAuthor: true
+  # # Display the last modification info
+  # displayUpdatedDate: true
+  # dateFormat: "January 2, 2006"
+  # displayUpdatedAuthor: true
 
-  # Search
-  # flexsearch is enabled by default
-  search:
-    enable: true
-    type: flexsearch
+  # # Search
+  # # flexsearch is enabled by default
+  # search:
+  #   enable: true
+  #   type: flexsearch
 
-    flexsearch:
-      # index page by: content | summary | heading | title
-      index: content
-      # full | forward | reverse | strict
-      # https://github.com/nextapps-de/flexsearch/#tokenizer-prefix-search
-      tokenize: reverse
+  #   flexsearch:
+  #     # index page by: content | summary | heading | title
+  #     index: content
+  #     # full | forward | reverse | strict
+  #     # https://github.com/nextapps-de/flexsearch/#tokenizer-prefix-search
+  #     tokenize: reverse
 
-  blog:
-    list:
-      displayTags: true
-      # date | lastmod | publishDate | title | weight
-      sortBy: date
-      sortOrder: desc # or "asc"
-      # Pagination
-      pagerSize: 20
+  # blog:
+  #   list:
+  #     displayTags: true
+  #     # date | lastmod | publishDate | title | weight
+  #     sortBy: date
+  #     sortOrder: desc # or "asc"
+  #     # Pagination
+  #     pagerSize: 20
 
-    article:
-      displayPagination: true
+  #   article:
+  #     displayPagination: true
 
-  toc:
-    displayTags: true
+  # toc:
+  #   displayTags: true
 
-  highlight:
-    copy:
-      enable: true
-      # hover | always
-      display: hover
+  # highlight:
+  #   copy:
+  #     enable: true
+  #     # hover | always
+  #     display: hover
 
-  page:
-    # full (100%), wide (90rem), normal (80rem)
-    width: normal
-    contextMenu:
-      enable: true
-      links:
-        - name: "Ask DeepSeek"
-          url: "https://chat.deepseek.com"
-          icon: "chat"
-    # tabs:
-    #   sync: true
+  # page:
+  #   # full (100%), wide (90rem), normal (80rem)
+  #   width: normal
+  #   contextMenu:
+  #     enable: true
+  #     links:
+  #       - name: "Ask DeepSeek"
+  #         url: "https://chat.deepseek.com"
+  #         icon: "chat"
+  #   # tabs:
+  #   #   sync: true
 
-  comments:
-    enable: false
-    type: giscus
+  # comments:
+  #   enable: false
+  #   type: giscus
 
-    # https://giscus.app/
-    giscus:
-      repo: shafeiyu/library
-      repoId: R_kgDOSS-gng
-      category: Announcements
-      categoryId: DIC_kwDOSS-gns4C8POT
-      mapping: title
-      strict: 0
-      reactionsEnabled: 1
-      emitMetadata: 1
-      inputPosition: top
-      lang: zh-CN
-      loading: lazy
-      theme: noborder_light
+  #   # https://giscus.app/
+  #   giscus:
+  #     repo: shafeiyu/library
+  #     repoId: R_kgDOSS-gng
+  #     category: Announcements
+  #     categoryId: DIC_kwDOSS-gns4C8POT
+  #     mapping: title
+  #     strict: 0
+  #     reactionsEnabled: 1
+  #     emitMetadata: 1
+  #     inputPosition: top
+  #     lang: zh-CN
+  #     loading: lazy
+  #     theme: noborder_light
 
-  imageZoom:
-    enable: true
+  # imageZoom:
+  #   enable: true
 
 
-  archives:
-    section: docs
-    dateFormat: "Jan 02"
+  # archives:
+  #   section: docs
+  #   dateFormat: "Jan 02"
