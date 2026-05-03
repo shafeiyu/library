@@ -14,7 +14,7 @@ outputs:
   page: [html, markdown]
   section: [html, rss, markdown]
 
-defaultContentLanguage: zh-CN
+defaultContentLanguage: 简体中文
 
 # import hextra as module
 module:
