@@ -9,6 +9,11 @@ enableGitInfo: true
 enableEmoji: true
 hasCJKLanguage: true
 
+outputs:
+  home: [html, llms]
+  page: [html, markdown]
+  section: [html, rss, markdown]
+
 # import hextra as module
 module:
   imports:
