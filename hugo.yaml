@@ -76,7 +76,7 @@ menu:
 params:
   navbar:
     displayTitle: true
-    displayLogo: false
+    displayLogo: true
     logo:
       path: /logo.png
       dark: /logo.png
