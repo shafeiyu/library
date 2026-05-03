@@ -1,168 +1,270 @@
-# Hugo configuration file
-title: Sha的书架
+# Configuration
+baseURL: "https://shafeiyu.github.io/"
+title: "Sha的书架"
 
-# import hextra as module
+capitalizeListTitles: false
+pluralizeListTitles: true
+enableRobotsTXT: true
+# Parse Git commit
+enableGitInfo: true
+enableEmoji: true
+hasCJKLanguage: true
+
+# services:
+#   googleAnalytics:
+#     ID: G-XK3DBVQTE3
+
+outputs:
+  home: [html, llms]
+  page: [html, markdown]
+  section: [html, rss, markdown]
+
+defaultContentLanguage: zh-CN
+# languages:
+#   en:
+#     languageName: English
+#     weight: 1
+#     title: Aerosand
+#   zh-CN:
+#     languageName: 简体中文
+#     languageCode: zh-CN
+#     weight: 2
+#     title: Aerosand
+#     params:
+#       banner:
+#         message: |
+#           🎉 欢迎访问 Aerosand !
+#       page:
+#         contextMenu:
+#           links:
+#             - name: 在 DeepSeek 中打开
+#               icon: chat
+#               url: "https://chat.deepseek.com"
+
+
+
 module:
+#  hugoVersion:
+#    extended: true
+#    min: "0.152.2"
+
+  # workspace: hugo.work
   imports:
     - path: github.com/imfing/hextra
 
-defaultContentLanguage: zh-CN
 
 markup:
-  # allow raw html
+  highlight:
+    noClasses: false
   goldmark:
     renderer:
       unsafe: true
+    extensions:
+      passthrough:
+        delimiters:
+          block: [['\[', '\]'], ['$$', '$$']]
+          # inline: [['\(', '\)']]
+          inline: [['$', '$']]
+        enable: true
 
-  # enable hextra syntax highlight
-  highlight:
-    noClasses: false
+enableInlineShortcodes: true
 
 menu:
   main:
-    - name: 书架
-      pageRef: /book
+    - identifier: cfd
+      name: CFD
       weight: 1
-    - name: 随笔
-      pageRef: /ink
+    - identifier: ofs
+      name: OFS
       weight: 2
-    - name: 关于
+    - identifier: docs
+      name: Docs
+      pageRef: /docs
+      weight: 95
+    - identifier: news
+      name: News
+      pageRef: /news
+      weight: 95
+    - identifier: more
+      name: More
+      pageRef: /more
+      weight: 96
+    - identifier: about
+      name: About
       pageRef: /about
-      weight: 3
-    - name: 搜索
-      weight: 4
+      weight: 97
+    - name: Search
+      weight: 98
       params:
         type: search
     - name: GitHub
-      weight: 5
-      url: "https://github.com/shafeiyu/library"
+      weight: 99
+      url: "https://github.com/aerosand"
       params:
         icon: github
+    - identifier: cfdb
+      name: Basics
+      pageRef: /docs/cfd/cfdb
+      parent: cfd
+    - identifier: cfdh
+      name: Higher
+      pageRef: /docs/cfd/cfdh
+      parent: cfd
+    - identifier: cfdp
+      name: Programming
+      pageRef: /docs/cfd/cfdp
+      parent: cfd
+    - identifier: ofsb
+      name: Basics
+      pageRef: /docs/ofs/ofsb
+      parent: ofs
+    - identifier: ofsp
+      name: Programming
+      pageRef: /docs/ofs/ofsp
+      parent: ofs
+    - identifier: ofss
+      name: Solver
+      pageRef: /docs/ofs/ofss
+      parent: ofs
+    - identifier: tags
+      name: Tags
+      pageRef: /tags
+      parent: more
+    - identifier: archives
+      name: Archives
+      pageRef: /archives
+      parent: more
 
-  # sidebar:
-  #   - identifier: more
-  #     name: More
-  #     params:
-  #       type: separator
-  #     weight: 1
-  #   - identifier: about
-  #     name: "About"
-  #     pageRef: "/about"
-  #     weight: 2
-  #   - identifier: discussions
-  #     name: "Github Discussions ↗"
-  #     url: "https://github.com/Aerosand/aerosand.github.io/discussions"
-  #     weight: 3
+  sidebar:
+    - identifier: more
+      name: More
+      params:
+        type: separator
+      weight: 1
+    - identifier: about
+      name: "About"
+      pageRef: "/about"
+      weight: 2
+    - identifier: discussions
+      name: "Github Discussions ↗"
+      url: "https://github.com/Aerosand/aerosand.github.io/discussions"
+      weight: 3
 
 params:
+  description: OpenFOAM, Numerical Calculation from Aerosand.
+  externalLinkDecoration: true
+
+  banner:
+    key: 'announcement'
+    message:
+      🎉 Welcome to Aerosand!.
+
   navbar:
     displayTitle: true
-    displayLogo: false
-  #   logo:
-  #     path: /logo.svg
-  #     dark: /logo.svg
-  #     width: 20
-  #     height: 10
-  #     link: /
-  #   width: wide
+    displayLogo: true
+    logo:
+      path: /logo.svg
+      dark: /logo.svg
+      width: 20
+      height: 10
+      link: /
+    width: wide
 
-  # footer:
-  #   enable: true
-  #   displayCopyright: true
-  #   displayPoweredBy: false
-  #   width: normal
+  theme:
+    # light | dark | system
+    default: system
+    displayToggle: true
 
-  # editURL:
-  #   enable: true
-  #   base: "https://github.com/shafeiyu/library/edit/main/content"
+  footer:
+    enable: true
+    displayCopyright: true
+    displayPoweredBy: false
+    width: normal
 
-  # description: Sha的书架
-  # externalLinkDecoration: true
+  # Display the last modification info
+  displayUpdatedDate: true
+  dateFormat: "January 2, 2006"
+  displayUpdatedAuthor: true
 
-  # banner:
-  #   key: 'announcement'
-  #   message:
-  #     🎉 Sha的书架.
+  # Search
+  # flexsearch is enabled by default
+  search:
+    enable: true
+    type: flexsearch
 
-  # theme:
-  #   # light | dark | system
-  #   default: system
-  #   displayToggle: true
+    flexsearch:
+      # index page by: content | summary | heading | title
+      index: content
+      # full | forward | reverse | strict
+      # https://github.com/nextapps-de/flexsearch/#tokenizer-prefix-search
+      tokenize: reverse
 
-  # # Display the last modification info
-  # displayUpdatedDate: true
-  # dateFormat: "January 2, 2006"
-  # displayUpdatedAuthor: true
+  editURL:
+    enable: true
+    base: "https://github.com/aerosand/aerosand.github.io/edit/main/content"
 
-  # # Search
-  # # flexsearch is enabled by default
-  # search:
-  #   enable: true
-  #   type: flexsearch
+  blog:
+    list:
+      displayTags: true
+      # date | lastmod | publishDate | title | weight
+      sortBy: date
+      sortOrder: desc # or "asc"
+      # Pagination
+      pagerSize: 20
 
-  #   flexsearch:
-  #     # index page by: content | summary | heading | title
-  #     index: content
-  #     # full | forward | reverse | strict
-  #     # https://github.com/nextapps-de/flexsearch/#tokenizer-prefix-search
-  #     tokenize: reverse
+    article:
+      displayPagination: true
 
-  # blog:
-  #   list:
-  #     displayTags: true
-  #     # date | lastmod | publishDate | title | weight
-  #     sortBy: date
-  #     sortOrder: desc # or "asc"
-  #     # Pagination
-  #     pagerSize: 20
+  toc:
+    displayTags: true
 
-  #   article:
-  #     displayPagination: true
+  highlight:
+    copy:
+      enable: true
+      # hover | always
+      display: hover
 
-  # toc:
-  #   displayTags: true
+  page:
+    # full (100%), wide (90rem), normal (80rem)
+    width: normal
+    contextMenu:
+      enable: true
+      links:
+        - name: "Ask DeepSeek"
+          url: "https://chat.deepseek.com"
+          icon: "chat"
+    # tabs:
+    #   sync: true
 
-  # highlight:
-  #   copy:
-  #     enable: true
-  #     # hover | always
-  #     display: hover
+  comments:
+    enable: false
+    type: giscus
 
-  # page:
-  #   # full (100%), wide (90rem), normal (80rem)
-  #   width: normal
-  #   contextMenu:
-  #     enable: true
-  #     links:
-  #       - name: "Ask DeepSeek"
-  #         url: "https://chat.deepseek.com"
-  #         icon: "chat"
-  #   # tabs:
-  #   #   sync: true
-
-  # comments:
-  #   enable: false
-  #   type: giscus
-
-  #   # https://giscus.app/
-  #   giscus:
-  #     repo: shafeiyu/library
-  #     repoId: R_kgDOSS-gng
-  #     category: Announcements
-  #     categoryId: DIC_kwDOSS-gns4C8POT
-  #     mapping: title
-  #     strict: 0
-  #     reactionsEnabled: 1
-  #     emitMetadata: 1
-  #     inputPosition: top
-  #     lang: zh-CN
-  #     loading: lazy
-  #     theme: noborder_light
-
-  # imageZoom:
-  #   enable: true
+    # https://giscus.app/
+    giscus:
+      repo: aerosand/aerosand.github.io
+      repoId: R_kgDOPjTFCw
+      category: General
+      categoryId: DIC_kwDOPjTFC84CuiTG
+      mapping: title
+      strict: 0
+      reactionsEnabled: 1
+      emitMetadata: 1
+      inputPosition: top
+      lang: en
+      loading: lazy
+      theme: noborder_dark
+  
+  analytics:
+    umami:
+      serverURL: "https://cloud.umami.is/script.js"
+      websiteID: "146b7306-3b3c-40ba-b117-57ff6bc52139"
 
 
-  # archives:
-  #   section: docs
-  #   dateFormat: "Jan 02"
+  imageZoom:
+    enable: true
+
+
+  archives:
+    section: docs
+    dateFormat: "Jan 02"
