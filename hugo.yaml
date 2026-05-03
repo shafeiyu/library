@@ -77,6 +77,13 @@ params:
   navbar:
     displayTitle: true
     displayLogo: false
+    logo:
+      path: /logo.svg
+      dark: /logo.svg
+      width: 20
+      height: 10
+      link: /
+    width: wide
 
   footer:
     displayCopyright: false
