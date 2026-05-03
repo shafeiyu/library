@@ -1,77 +1,81 @@
 {{- $epubFile := .Get 0 -}}
 {{- $epubDir := .Page.File.Dir -}}
 {{- $epubPath := printf "/%s%s" $epubDir $epubFile -}}
+{{- $uid := .Page.File.UniqueID -}}
 
-<div class="epub-reader" id="epub-reader-{{ .Page.File.UniqueID }}">
-  <div class="epub-loading">加载中...</div>
-  <div class="epub-viewer" id="epub-viewer-{{ .Page.File.UniqueID }}"></div>
+<div class="epub-reader" id="epub-reader-{{ $uid }}">
+  <div class="epub-loading" id="epub-loading-{{ $uid }}">加载中...</div>
+  <div class="epub-viewer" id="epub-viewer-{{ $uid }}"></div>
   <div class="epub-controls">
-    <button class="epub-btn" id="epub-prev-{{ .Page.File.UniqueID }}">← 上一章</button>
-    <span class="epub-progress" id="epub-progress-{{ .Page.File.UniqueID }}"></span>
-    <button class="epub-btn" id="epub-next-{{ .Page.File.UniqueID }}">下一章 →</button>
+    <button class="epub-btn" id="epub-prev-{{ $uid }}">← 上一章</button>
+    <span class="epub-progress" id="epub-progress-{{ $uid }}"></span>
+    <button class="epub-btn" id="epub-next-{{ $uid }}">下一章 →</button>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
 <script>
 (function() {
-  var container = document.getElementById("epub-reader-{{ .Page.File.UniqueID }}");
-  var viewer = document.getElementById("epub-viewer-{{ .Page.File.UniqueID }}");
-  var loading = container.querySelector(".epub-loading");
-  var progress = document.getElementById("epub-progress-{{ .Page.File.UniqueID }}");
-  var prevBtn = document.getElementById("epub-prev-{{ .Page.File.UniqueID }}");
-  var nextBtn = document.getElementById("epub-next-{{ .Page.File.UniqueID }}");
+  var container = document.getElementById("epub-reader-{{ $uid }}");
+  var viewer    = document.getElementById("epub-viewer-{{ $uid }}");
+  var loading   = document.getElementById("epub-loading-{{ $uid }}");
+  var progress  = document.getElementById("epub-progress-{{ $uid }}");
+  var prevBtn   = document.getElementById("epub-prev-{{ $uid }}");
+  var nextBtn   = document.getElementById("epub-next-{{ $uid }}");
+
+  function showError(msg) {
+    if (loading) {
+      loading.textContent = "\u52A0\u8F7D\u5931\u8D25: " + msg;
+      loading.style.color = "#ef4444";
+    }
+  }
 
   try {
     var book = ePub("{{ $epubPath | safeJS }}");
-    var rendition = book.renderTo(viewer, {
-      width: "100%",
-      height: "80vh",
-      flow: "scrolled",
-      manager: "default"
-    });
-
-    var displayed = rendition.display();
-
-    book.ready.then(function() {
-      if (loading) loading.style.display = "none";
-    }).catch(function(err) {
-      if (loading) loading.textContent = "加载失败: " + err.message;
-    });
-
-    prevBtn.addEventListener("click", function() {
-      rendition.prev();
-    });
-
-    nextBtn.addEventListener("click", function() {
-      rendition.next();
-    });
-
-    rendition.on("relocated", function(location) {
-      if (location.atStart) {
-        prevBtn.disabled = true;
-      } else {
-        prevBtn.disabled = false;
-      }
-      if (location.atEnd) {
-        nextBtn.disabled = true;
-      } else {
-        nextBtn.disabled = false;
-      }
-      var pct = Math.floor(location.start.percentage * 100);
-      progress.textContent = pct + "%";
-    });
-
-    // Keyboard navigation
-    document.addEventListener("keydown", function(e) {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-      if (e.key === "ArrowLeft") rendition.prev();
-      if (e.key === "ArrowRight") rendition.next();
-    });
-
-  } catch(err) {
-    if (loading) loading.textContent = "阅读器初始化失败: " + err.message;
+  } catch(e) {
+    return showError("\u521D\u59CB\u5316 EPUB \u5931\u8D25: " + e.message);
   }
+
+  var rendition = book.renderTo(viewer, {
+    width: "100%",
+    height: "80vh",
+    flow: "scrolled"
+  });
+
+  // Wait for book to be fully parsed, then display
+  book.ready.then(function() {
+    if (loading) loading.style.display = "none";
+    return rendition.display();
+  }).then(function() {
+    // Make viewer visible
+    viewer.style.minHeight = "80vh";
+  }).catch(function(err) {
+    showError(err.message || "\u672A\u77E5\u9519\u8BEF");
+  });
+
+  // Navigation
+  prevBtn.addEventListener("click", function() {
+    rendition.prev();
+  });
+  nextBtn.addEventListener("click", function() {
+    rendition.next();
+  });
+
+  rendition.on("relocated", function(location) {
+    prevBtn.disabled = !!location.atStart;
+    nextBtn.disabled = !!location.atEnd;
+    if (progress) {
+      progress.textContent = Math.floor(location.start.percentage * 100) + "%";
+    }
+  });
+
+  // Keyboard navigation
+  document.addEventListener("keydown", function(e) {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.key === "ArrowLeft")  rendition.prev();
+    if (e.key === "ArrowRight") rendition.next();
+  });
 })();
 </script>
 
@@ -142,21 +146,25 @@
 }
 
 /* Dark mode */
+html.dark .epub-viewer,
 :root[class~="dark"] .epub-viewer {
   background: #1a1a2e;
 }
 
+html.dark .epub-controls,
 :root[class~="dark"] .epub-controls {
   background: var(--gray-800, #1f2937);
   border-color: var(--gray-700, #374151);
 }
 
+html.dark .epub-btn,
 :root[class~="dark"] .epub-btn {
   background: var(--gray-800, #1f2937);
   color: var(--gray-200, #e5e7eb);
   border-color: var(--gray-600, #4b5563);
 }
 
+html.dark .epub-btn:hover:not(:disabled),
 :root[class~="dark"] .epub-btn:hover:not(:disabled) {
   background: var(--gray-700, #374151);
 }
